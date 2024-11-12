@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhythm of Heart - Pregnancy Health Monitor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #ff97b7;
+            --secondary-color: #4fd1c5;
+            --background-color: #f8f9fa;
+            --text-color: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff5f7 0%, #e6fffa 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+        }
+
+        .logo {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 1rem;
+        }
+
+        .form-container {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .button {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .risk-assessment {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: none;
+        }
+
+        .high-risk {
+            background: #fff5f5;
+            border: 1px solid #fc8181;
+            color: #c53030;
+        }
+
+        .mid-risk {
+            background: #fffff0;
+            border: 1px solid #faf089;
+            color: #975a16;
+        }
+
+        .low-risk {
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            color: #2f855a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DALL%C2%B7E%202024-11-12%2013.41.56%20-%20A%20logo%20for%20'Rhythm%20of%20Heart%20-%20Pregnancy%20Health%20Monitor.'%20The%20design%20should%20feel%20caring%20and%20professional,%20with%20soft,%20calming%20colors%20like%20pastel%20pinks,%20-hBvag89GIG1Xh4hErgOnbrPdKtKvHZ.webp" alt="Rhythm of Heart Logo" class="logo">
+            <h1>Rhythm of Heart</h1>
+            <p>Pregnancy Health Monitor</p>
+        </div>
+
+        <div class="form-container">
+            <form id="healthForm">
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="systolicBP">Systolic Blood Pressure</label>
+                    <input type="number" id="systolicBP" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="diastolicBP">Diastolic Blood Pressure</label>
+                    <input type="number" id="diastolicBP" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="bloodSugar">Blood Sugar</label>
+                    <input type="number" id="bloodSugar" step="0.1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="bodyTemp">Body Temperature</label>
+                    <input type="number" id="bodyTemp" step="0.1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="heartRate">Heart Rate</label>
+                    <input type="number" id="heartRate" required>
+                </div>
+
+                <button type="submit" class="button">Analyze Risk</button>
+            </form>
+
+            <div id="riskAssessment" class="risk-assessment"></div>
+
+            <button id="downloadPDF" class="button" style="display: none;">Download Report</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('healthForm');
+        const riskAssessment = document.getElementById('riskAssessment');
+        const downloadPDF = document.getElementById('downloadPDF');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const age = parseInt(document.getElementById('age').value);
+            const systolicBP = parseInt(document.getElementById('systolicBP').value);
+            const diastolicBP = parseInt(document.getElementById('diastolicBP').value);
+            const bloodSugar = parseFloat(document.getElementById('bloodSugar').value);
+            const bodyTemp = parseFloat(document.getElementById('bodyTemp').value);
+            const heartRate = parseInt(document.getElementById('heartRate').value);
+
+            let risk;
+            let message;
+
+            // Risk assessment based on the provided dataset patterns
+            if (systolicBP >= 140 || diastolicBP >= 90 || bloodSugar >= 11 || age >= 35) {
+                risk = 'high';
+                message = 'High Risk: Please consult your healthcare provider immediately.';
+            } else if (systolicBP >= 120 || diastolicBP >= 80 || bloodSugar >= 7 || bodyTemp > 99 || heartRate > 100 || age >= 30) {
+                risk = 'mid';
+                message = 'Medium Risk: Regular monitoring recommended. Consider consulting your healthcare provider.';
+            } else {
+                risk = 'low';
+                message = 'Low Risk: Continue regular check-ups and maintain a healthy lifestyle.';
+            }
+
+            riskAssessment.className = `risk-assessment ${risk}-risk`;
+            riskAssessment.innerHTML = message;
+            riskAssessment.style.display = 'block';
+            downloadPDF.style.display = 'block';
+        });
+
+        downloadPDF.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add logo
+            doc.addImage(document.querySelector('.logo').src, 'JPEG', 15, 15, 30, 30);
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.text('Rhythm of Heart - Health Report', 50, 30);
+            
+            // Add form data
+            doc.setFontSize(12);
+            let y = 50;
+            const fields = ['age', 'systolicBP', 'diastolicBP', 'bloodSugar', 'bodyTemp', 'heartRate'];
+            const labels = ['Age', 'Systolic BP', 'Diastolic BP', 'Blood Sugar', 'Body Temperature', 'Heart Rate'];
+            
+            fields.forEach((field, index) => {
+                const value = document.getElementById(field).value;
+                doc.text(`${labels[index]}: ${value}`, 20, y);
+                y += 10;
+            });
+            
+            // Add risk assessment
+            doc.setFontSize(14);
+            doc.text('Risk Assessment:', 20, y + 10);
+            doc.text(riskAssessment.innerText, 20, y + 20);
+            
+            doc.save('pregnancy-health-report.pdf');
+        });
+    </script>
+</body>
+</html>
